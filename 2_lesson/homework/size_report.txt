@@ -1,0 +1,16 @@
+snippets, tags, snippets_tags
+
+select 'snippets' as tablename, count(s.*) row_count
+from snippets s
+union
+select 'tags', count(t.*) c_tags
+from tags t
+union
+select 'snippets_tags', count(st.*) c_st
+from snippets_tags st;
+
+select oid::regclass as tablename, pg_table_size(oid) as table_size,
+    pg_indexes_size(oid) as indexes_size,
+    pg_total_relation_size(oid) as total_size
+from pg_class
+where relkind = 'r' and oid::regclass::text in ('snippets', 'tags', 'snippets_tags');
