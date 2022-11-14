@@ -1,0 +1,35 @@
+# Отложенные транзакции не проверяют ограничения целостности пока
+# транзакция не будет закоммичена
+
+```sql 1 
+DROP TABLE IF EXISTS employees CASCADE;
+CREATE TABLE employees (
+    id INT UNIQUE GENERATED ALWAYS AS IDENTITY,
+    first_name VARCHAR(200) NOT NULL,
+    last_name VARCHAR(200) NOT NULL,
+    salary MONEY NOT NULL CHECK (salary::numeric > 0),
+    manager_id INT NOT NULL,
+    department_id INT NOT NULL REFERENCES departments (id),    
+    position INT NOT NULL REFERENCES positions (id)
+        DEFERRABLE INITIALLY DEFERRED
+);
+```
+```sql 2, Добавление сотрудника. 
+BEGIN DEFERRABLE;
+    INSERT INTO employees (first_name, last_name, salary, manager_id, department_id, position)
+    VALUES(
+        'Alice',
+        'Liddell',
+        500000,
+        42,
+        (SELECT id FROM departments WHERE name = 'executives'),
+        (SELECT id FROM positions WHERE title = 'CTO')
+    );
+    UPDATE employees 
+    SET manager_id = (
+            SELECT id FROM employees
+            WHERE first_name = 'Alice' AND last_name = 'Liddell'
+        ) 
+    WHERE first_name = 'Alice' AND last_name = 'Liddell';
+COMMIT;
+```

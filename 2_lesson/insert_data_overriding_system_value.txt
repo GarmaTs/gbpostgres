@@ -1,0 +1,10 @@
+#sql --host 127.0.0.1 --port 5432 --username gopher --dbname gopher_corp
+
+```sql
+# Вставить значение обходя ограничение identity на столбце id
+INSERT INTO departments (id, parent_id, name)
+OVERRIDING SYSTEM VALUE
+VALUES(0,0,'executives');
+
+INSERT INTO positions (title) VALUES('CTO');
+```
