@@ -1,0 +1,10 @@
+1) sudo sh -c "cd data && du -sh ./*"
+
+2) psql \d+
+
+3) 
+select oid::regclass as tablename, pg_table_size(oid) as table_size,
+    pg_indexes_size(oid) as indexes_size,
+    pg_total_relation_size(oid) as total_size
+from pg_class
+where relkind = 'r' and oid::regclass::text = 'departments';
