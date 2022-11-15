@@ -1,0 +1,13 @@
+mkdir -p mock && sudo chown -R 10000 mock
+
+docker run \
+    --rm \
+    --name mock-pg \
+    -v $HOME/pg-for-go-devs/lesson-3/mock:/mock \
+    ghcr.io/pivotal-gss/mock-data:latest \
+    -a 172.17.0.2 \
+    -d gopher_corp \
+    -u gopher \
+    -w P@ssw0rd \
+    -r 100000 \
+    tables -t employees

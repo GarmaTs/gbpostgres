@@ -46,6 +46,8 @@ psql -h localhost -p 5432 -U postgres
 \set
 # Закрыть psql
 \q
+# Список индексов
+\di+
 ```
 
 # Создание пользователя
