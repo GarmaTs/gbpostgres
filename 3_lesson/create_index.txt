@@ -1,0 +1,57 @@
+# Создание индекса
+добавляется командой CREATE INDEX
+При создании индекса можно явно указать его тип,
+по умолчанию BTree (balanced tree). 
+На время создания
+индекса данные в таблице доступны только для чтения.
+Чтобы избежать этого можно использовать
+CREATE INDEX CONCURRENTLY
+
+пример:
+CREATE INDEX ON employees(email)
+
+# Доступные классы операторов
+select am.amname as index_method,
+    opc.opcname as opclass_name,
+    opc.opcintype::regtype as indexed_type,
+    opc.opcdefault as is_default
+from pg_am am, pg_opclass opc
+where opc.opcmethod = am.oid
+order by index_method, opclass_name;
+
+
+# Чтоб работал index scan при операторе like 
+нужно указать класс оператора (например text_pattern_ops);
+CREATE INDEX ON employees(email text_pattern_ops);
+
+
+# Covering index (покрывающий индекс)
+CREATE INDEX
+ON employees(email text_pattern_ops)
+INCLUDE(phone);
+При таком индексе запрос вида:
+select email, phone from employees where email = 'bla-bla';
+получит данные из индекса и не будет заглядывать в таблицу.
+expain analyze выведет Index Only Scan, вместо Index Scan
+
+
+# Порядок индексации
+Если при использовании сортировки (order by)
+expain выводит Seq Scan, то можно добавить индекс
+CREATE INDEX first_name_last_name_desc
+ON employees (first_name, last_name);
+Тогда expain будет выводить Index Scan
+
+
+# Частичная индексация
+Подмножество, поиск по которому будет работать быстрее
+CREATE INDEX alice_employees
+ON employees (manager) WHERE (manager = 3);
+
+
+# Индексация выражений
+CREATE INDEX first_name_lower
+ON employees(lower(first_name));
+Такой индекс создается для запросов вида:
+select last_name from employees
+where lower(first_name) = 'blabla';

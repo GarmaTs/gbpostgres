@@ -1,0 +1,23 @@
+delete from departments;
+
+insert into departments (id, parent_id, name)
+OVERRIDING SYSTEM VALUE
+VALUES
+(0, 0, 'root'),
+(1, 0, 'executives'),
+(2, 0, 'R&D'),
+(3, 2, 'Romulus'),
+(4, 2, 'Remus');
+
+
+WITH RECURSIVE dept_chain (id, parent_id, name) AS (
+    SELECT id, parent_id, name
+    FROM departments
+    WHERE name = 'Romulus'
+    UNION
+    SELECT d.id, d.parent_id, d.name
+    FROM departments d
+    JOIN dept_chain dc
+        ON d.id = dc.parent_id
+)
+select * from dept_chain;

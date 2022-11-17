@@ -1,0 +1,1 @@
+select s.header, t.tag, substring(s.content,0,30) from snippets s inner join snippets_tags st on st.snippet_id = s.id left join tags t on t.id = st.tag_id;

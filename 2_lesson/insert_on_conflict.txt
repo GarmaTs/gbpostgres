@@ -1,0 +1,27 @@
+INSERT INTO departments (id, parent_id, name)
+OVERRIDING SYSTEM VALUE
+VALUES
+    (0, 0 , 'execs')
+ON CONFLICT (id) DO UPDATE
+    SET parent_id = excluded.parent_id,
+        name = excluded.name;
+
+либо можно указать 
+ON CONFLICT (id) DO NOTHING;
+чтоб не было ошибки:
+
+INSERT INTO departments (id, parent_id, name)
+OVERRIDING SYSTEM VALUE
+VALUES
+    (0, 0 , 'executives')
+ON CONFLICT DO NOTHING;
+
+
+INSERT INTO departments (id, parent_id, name)
+OVERRIDING SYSTEM VALUE
+VALUES
+    (0, 0 , 'execs'),
+    (1, 0 , 'R&B')
+ON CONFLICT (id) DO UPDATE
+    SET parent_id = excluded.parent_id,
+        name = excluded.name;
