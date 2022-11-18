@@ -1,0 +1,25 @@
+version: '3'
+services:
+  db:
+    image: postgres:13.4
+    volumes: 
+      - ./data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_PASSWORD=P@ssw0rd
+      - POSTGRES_USER=postgres
+      - PGDATA=/var/lib/postgresql/data/
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    environment:
+      - DB_USER=gopher
+      - DB_PASSWORD=P@ssw0rd
+      - DB_HOST=db
+      - DB_NAME=gopher_corp
+      - POOL_MODE=transaction
+      - ADMIN_USERS=postgres,db_user
+    ports:
+      - "5432:5432"
+    depends_on:
+      - db

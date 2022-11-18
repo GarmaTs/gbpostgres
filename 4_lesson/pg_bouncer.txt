@@ -1,0 +1,37 @@
+PostgreSQL Connection pooler - это дополнительный компонент между приложением
+и сервером PostgreSQL, который терминирует соединение от клиентов и
+поддерживает ограниченный пул соединений к базе.
+PgBouncer имеет смысл использовать в тех случаях когда работает 
+более одного инстанса приложения, если работает только один инстанс 
+приложения, то достатночно использовать pool на уровене приложения 
+встроенный в pgx.
+
+
+Режимы работы:
+1) Session pooling - каждой сессии выдается одно соединение и закрепляется
+за ней на всё время жизни.
+
+2) Transaction pooling - соединение живет, пока работает транзакция. Как 
+только транзакция завершится, PgBouncer забирает это соединение и отдает
+другой транзакции. pgx в этом режиме работает некорректно, т.к. использует
+prepared statements, а id prepared statement'а валиден только в рамках
+одного соединения.
+
+
+PGX и prepared statements: ModeDescribe
+В режиме Describe используется Unnamed Prepared statements, которые 
+существуют только в рамках одного "запроса".
+Поэтому в таком режиме PGX будет корректно взаимодействовать с PgBouncer.
+cfg, err := pgxpool.ParseConfig(url)
+if err != nil {...}
+
+cfg.ConnConfig.BuildStatementCache = func(conn *pgconn.PgConn) stmtcache.Cache {
+    mode := stmtcache.ModeDescribe
+    capacity := 512
+    return stmtcache.New(conn, mode, capacity)
+}
+
+
+PGX и prepared statements: Simpe Protocol
+В случае взаимодействия с БД по Simpe Protocol Prepared statements не 
+используются. Это решает проблему взаимодействия с PgBouncer.
