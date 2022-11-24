@@ -149,8 +149,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	cfg.MaxConns = 20
-	cfg.MinConns = 20
+	cfg.MaxConns = 80
+	cfg.MinConns = 80
 
 	dbpool, err := pgxpool.ConnectConfig(ctx, cfg)
 	if err != nil {
@@ -171,10 +171,12 @@ func main() {
 
 	// Нагрузочное тестирование
 	duration := time.Duration(10 * time.Second)
-	threads := 40
+	threads := 80
 	fmt.Println("start attack")
 	res := attack(ctx, duration, threads, dbpool)
 
+	fmt.Println("MaxConns:", cfg.MaxConns)
+	fmt.Println("MinConns:", cfg.MinConns)
 	fmt.Println("duration:", res.Duration)
 	fmt.Println("threads:", res.Threads)
 	fmt.Println("queries:", res.QueriesPerformed)

@@ -1,0 +1,33 @@
+Миграции схемы БД - процесс внесения инкрементальных обратимых
+изменений в схему БД, добавление контроля версий для схем
+реляционных БД.
+Изменения схемы описываются в файлах и лежат вместе с кодом
+приложения. В названии файла может указываться дата изменений
+или просто порядковый номер.
+В deployment pipeline включаются шаги, накатывающие изменения
+на базу данных. При этом в отдельной таблице БД фиксируются
+внесенные изменения.
+
+Некторые либы
+github.com/golang-migrate/migrate - эта будет испрользоваться
+github.com/jackc/tern
+github.com/rubenv/sql-migrate
+
+Установка
+curl -L https://github.com/golang-migrate/migrate/releases/download/v4.14.1/migrate.linux-amd64.tar.gz | tar xvz
+mv migrate.linux-amd64 $GOPATH/bin/migrate
+--go install github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+--go get -tags 'postgres' -u github.com/golang-migrate/migrate/cmd/migrate
+
+Запуск будет производиться внутри контейнера migrate
+в контейнер мапятся папка с миграциями, которые будут
+выполнены на указанной базе
+```bash
+docker run \ 
+    -v "$(pwd)/gopher-corp-backend/migrations":migrations \
+    migrate/migrate \
+    -path=/migrations/ \
+    -database postgresql://gopher:P@ssw0rd@localhost:5432/gopher_corp?sslmode=disable \
+    -verbose \
+    up
+```
